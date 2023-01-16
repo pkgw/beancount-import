@@ -661,7 +661,7 @@ class ParsedOfxStatement(object):
         for invtranlist in stmtrs.find_all(re.compile('invtranlist|banktranlist')):
             for tran in invtranlist.find_all(
                     re.compile(
-                        '^(buymf|sellmf|reinvest|buystock|sellstock|buyopt|sellopt|buydebt|selldebt|sellother|transfer|income|invbanktran|stmttrn)$'
+                        '^(buymf|sellmf|reinvest|buystock|sellstock|buyopt|sellopt|buydebt|selldebt|buyother|sellother|transfer|income|invbanktran|stmttrn)$'
                     )):
                 fitid = find_child(tran, 'fitid')
                 date = parse_ofx_time(
