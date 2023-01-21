@@ -1095,6 +1095,21 @@ class ParsedOfxStatement(object):
                     results
                 ) + ':' + security + ':' + kind
 
+            # PKGW Vanguard gains capitalization hack
+            if raw.trantype == "REINVEST" and "CAP GAIN" in narration:
+                if "LT CAP" in narration:
+                    kind = "LongTerm"
+                elif "ST CAP" in narration:
+                    kind = "ShortTerm"
+                else:
+                    raise Exception(f"unhandled Vanguard hack cap gains {narration}")
+
+                external_account_name = get_aux_account_by_key(
+                    account,
+                    AUX_CAPITAL_GAINS_KEY + '_account',
+                    results
+                ) + ':' + security + ':' + kind
+
             # PKGW TIAA fees hack
             if narration.startswith("SELLOTHER") and "Servicing Fee" in narration:
                 external_account_name = get_aux_account_by_key(
