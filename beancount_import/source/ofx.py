@@ -1093,25 +1093,32 @@ class ParsedOfxStatement(object):
                     ))
 
                 if is_closing_txn:
-                    if security.startswith("T9127") or "-9127" in security:
-                        # Treasury bill: add interest posting.
-                        account_name = AUX_INTEREST_KEY + "_account"
+                    # PKGW TIAA fees hack
+                    if narration.startswith("SELLOTHER") and "Servicing Fee" in narration:
+                        # We balance these out manually with "RoundingError"
+                        # postings while I can't figure out how to get the
+                        # cost-basis stuff right.
+                        pass
                     else:
-                        # Others: add capital gains posting.
-                        account_name = AUX_CAPITAL_GAINS_KEY + "_account"
-                    # Add capital gains posting.
-                    entry.postings.append(
-                        Posting(
-                            meta=None,
-                            account=get_aux_account_by_key(
-                                account,
-                                account_name,
-                                results) + ':' + security,
-                            units=MISSING,
-                            cost=None,
-                            price=None,
-                            flag=None,
-                        ))
+                        if security.startswith("T9127") or "-9127" in security:
+                            # Treasury bill: add interest posting.
+                            account_name = AUX_INTEREST_KEY + "_account"
+                        else:
+                            # Others: add capital gains posting.
+                            account_name = AUX_CAPITAL_GAINS_KEY + "_account"
+                        # Add capital gains posting.
+                        entry.postings.append(
+                            Posting(
+                                meta=None,
+                                account=get_aux_account_by_key(
+                                    account,
+                                    account_name,
+                                    results) + ':' + security,
+                                units=MISSING,
+                                cost=None,
+                                price=None,
+                                flag=None,
+                            ))
 
             # Compute total amount.
             if raw.trantype == 'TRANSFER':
@@ -1163,6 +1170,14 @@ class ParsedOfxStatement(object):
                     AUX_CAPITAL_GAINS_KEY + '_account',
                     results
                 ) + ':' + security + ':' + kind
+
+            # PKGW TIAA fees hack
+            if narration.startswith("SELLOTHER") and "Servicing Fee" in narration:
+                external_account_name = get_aux_account_by_key(
+                    account,
+                    'fees_account',
+                    results
+                )
 
             if external_account_name is None:
                 if has_cash_account:
