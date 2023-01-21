@@ -997,7 +997,7 @@ class ParsedOfxStatement(object):
                 else:
                     number_per_fix = unitprice
                     if abs(total + fee_total + (units * unitprice)) >= TOLERANCE:
-                    	number_per_fix = normalize_fraction((abs(total)-abs(fee_total))/units)
+                        number_per_fix = normalize_fraction((abs(total)-abs(fee_total))/units)
                     cost_spec = CostSpec(
                         number_per=number_per_fix,
                         number_total=None,
@@ -1072,6 +1072,22 @@ class ParsedOfxStatement(object):
             elif (raw.trantype == 'BUYMF' or raw.trantype == 'BUYSTOCK') and raw.inv401ksource is not None:
                 account_key = '%s_contribution_account' % raw.inv401ksource.lower()
                 external_account_name = account.meta.get(account_key)
+
+            # PKGW TIAA gains capitalization hack
+            if narration.startswith("BUYOTHER") and "capital gains" in narration:
+                if "Long-term" in narration:
+                    kind = "LongTerm"
+                elif "Short-term" in narration:
+                    kind = "ShortTerm"
+                else:
+                    raise Exception(f"unhandled TIAA hack cap gains {narration}")
+
+                external_account_name = get_aux_account_by_key(
+                    account,
+                    AUX_CAPITAL_GAINS_KEY + '_account',
+                    results
+                ) + ':' + security + ':' + kind
+
             if external_account_name is None:
                 if has_cash_account:
                     external_account_name = get_subaccount_cash(raw.inv401ksource)
