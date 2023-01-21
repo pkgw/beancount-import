@@ -1023,19 +1023,26 @@ class ParsedOfxStatement(object):
                     ))
 
                 if is_sale:
-                    # Add capital gains posting.
-                    entry.postings.append(
-                        Posting(
-                            meta=None,
-                            account=get_aux_account_by_key(
-                                account,
-                                AUX_CAPITAL_GAINS_KEY + '_account',
-                                results) + ':' + security,
-                            units=MISSING,
-                            cost=None,
-                            price=None,
-                            flag=None,
-                        ))
+                    # PKGW TIAA fees hack
+                    if narration.startswith("SELLOTHER") and "Servicing Fee" in narration:
+                        # We balance these out manually with "RoundingError"
+                        # postings while I can't figure out how to get the
+                        # cost-basis stuff right.
+                        pass
+                    else:
+                        # Add capital gains posting.
+                        entry.postings.append(
+                            Posting(
+                                meta=None,
+                                account=get_aux_account_by_key(
+                                    account,
+                                    AUX_CAPITAL_GAINS_KEY + '_account',
+                                    results) + ':' + security,
+                                units=MISSING,
+                                cost=None,
+                                price=None,
+                                flag=None,
+                            ))
 
             # Compute total amount.
             if raw.trantype == 'TRANSFER':
@@ -1087,6 +1094,14 @@ class ParsedOfxStatement(object):
                     AUX_CAPITAL_GAINS_KEY + '_account',
                     results
                 ) + ':' + security + ':' + kind
+
+            # PKGW TIAA fees hack
+            if narration.startswith("SELLOTHER") and "Servicing Fee" in narration:
+                external_account_name = get_aux_account_by_key(
+                    account,
+                    'fees_account',
+                    results
+                )
 
             if external_account_name is None:
                 if has_cash_account:
