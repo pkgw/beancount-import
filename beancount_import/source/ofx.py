@@ -617,8 +617,8 @@ def get_securities(soup: bs4.BeautifulSoup) -> List[SecurityInfo]:
 
 
 STOCK_BUY_SELL_TYPES = set(
-    ['BUYMF', 'SELLMF', 'SELLSTOCK', 'BUYSTOCK', 'REINVEST'])
-SELL_TYPES = set(['SELLMF', 'SELLSTOCK'])
+    ['BUYMF', 'SELLMF', 'SELLSTOCK', 'BUYSTOCK', 'SELLOTHER', 'BUYOTHER', 'REINVEST'])
+SELL_TYPES = set(['SELLMF', 'SELLSTOCK', 'SELLOTHER'])
 
 RELATED_ACCOUNT_KEYS = ['aftertax_account', 'pretax_account', 'match_account']
 
