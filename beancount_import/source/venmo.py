@@ -288,7 +288,7 @@ class VenmoSource(Source):
             if t == 'Standard Transfer':
                 has_transfer = True
                 has_payment = False
-            elif t in ['Charge', 'Payment', 'Merchant Transaction']:
+            elif t in ['Card Payment', 'Charge', 'Payment', 'Merchant Transaction']:
                 has_transfer = raw_txn[CSV_FUNDING_SOURCE_KEY] != 'Venmo balance' and raw_txn[CSV_DESTINATION_KEY] != 'Venmo balance'
                 has_payment = True
             else:
