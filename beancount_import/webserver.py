@@ -10,7 +10,6 @@ import collections
 import sys
 import logging
 import traceback
-import pdb
 import json
 import os
 import tempfile
@@ -315,7 +314,7 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler):
             self.application.ioloop.add_callback(f, message['value'])
         except:
             traceback.print_exc()
-            pdb.pm()
+            raise
 
     def on_close(self):
         print('closed, code = %r, reason = %r' % (self.close_code,
@@ -345,7 +344,7 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler):
                 prev_state.update(update)
         except:
             traceback.print_exc()
-            pdb.post_mortem()
+            raise
 
     def send_file_update(self, filename, contents):
         try:
@@ -528,7 +527,7 @@ class Application(tornado.web.Application):
             self.get_next_candidates(new_pending=True)
         except:
             traceback.print_exc()
-            pdb.post_mortem()
+            raise
 
     def start_check_modification_observer(self, loaded_reconciler):
         if self.check_modification_observer is not None:
@@ -631,7 +630,7 @@ class Application(tornado.web.Application):
         except:
             traceback.print_exc()
             print('got error')
-            pdb.post_mortem()
+            raise
 
     def handle_skip(self, msg):
         pending_generation = int(msg['generation'])
