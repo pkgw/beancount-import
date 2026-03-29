@@ -11,7 +11,6 @@ import sys
 import logging
 import traceback
 import pdb
-import pkg_resources
 import json
 import os
 import tempfile
@@ -209,8 +208,12 @@ class StaticHandler(tornado.web.RequestHandler):
         else:
             content_type = 'application/octet-stream'
         self.set_header('Content-Type', content_type)
-        contents = pkg_resources.resource_string(__name__,
-                                                 'frontend_dist/%s' % name)
+
+        path = os.path.join(os.path.dirname(__file__), 'frontend_dist', name)
+
+        with open(path, "rb") as f:
+            contents = f.read()
+
         if name == 'app.js':
             contents = contents.replace(
                 self.application.secret_key_pattern.encode(),  # type: ignore
